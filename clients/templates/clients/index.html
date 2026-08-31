@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Clients - Immovia{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="text-white">Clients</h1>
+    <a href="{% url 'clients:create' %}" class="btn btn-success"><i class="fas fa-user-plus"></i> Nouveau client</a>
+</div>
+<div class="card"><div class="card-body">
+    {% if clients %}
+        <div class="table-responsive"><table class="table mb-0">
+            <thead><tr><th>Nom</th><th>Type</th><th>Email</th><th>Téléphone</th><th>Budget</th></tr></thead>
+            <tbody>{% for client in clients %}<tr><td>{{ client }}</td><td>{{ client.get_type_client_display }}</td><td>{{ client.email|default:'-' }}</td><td>{{ client.telephone|default:'-' }}</td><td>{{ client.budget|default:'-' }}</td></tr>{% endfor %}</tbody>
+        </table></div>
+    {% else %}<p class="mb-0">Aucun client enregistré.</p>{% endif %}
+</div></div>
+{% endblock %}

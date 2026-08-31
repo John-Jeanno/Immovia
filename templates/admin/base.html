@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if title %}{{ title }} | {% endif %}Vue Globale - Immovia{% endblock %}
+
+{% block content %}
+<style>
+    body.admin-surface {
+        background: #f4f7fb;
+        color: #243247;
+    }
+    .admin-surface main {
+        padding: 28px 0 48px;
+    }
+    .admin-shell {
+        max-width: 1440px;
+        margin: 0 auto;
+    }
+    .admin-shell > .row > .col-12 > .card {
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+        overflow: visible;
+    }
+    .admin-shell > .row > .col-12 > .card > .d-flex {
+        margin-bottom: 28px !important;
+    }
+    .admin-shell h2,
+    .admin-shell h3,
+    .admin-shell h5,
+    .admin-shell h6 {
+        color: #243247;
+        letter-spacing: 0;
+    }
+    .admin-shell .change-list-title {
+        color: #243247 !important;
+    }
+    .admin-shell .feature-icon {
+        color: #4b7bec;
+    }
+    .admin-shell .admin-app-card,
+    .admin-shell .admin-panel {
+        background: #fff;
+        border: 1px solid #e5ebf3;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(40, 59, 84, 0.06);
+    }
+    .admin-shell .admin-app-card:hover,
+    .admin-shell .admin-panel:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 30px rgba(40, 59, 84, 0.1);
+    }
+    .admin-shell .admin-app-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 18px 20px;
+        background: #f8faff;
+        border-bottom: 1px solid #e9eef6;
+        color: #243247;
+    }
+    .admin-shell .admin-app-icon {
+        display: grid;
+        width: 36px;
+        height: 36px;
+        place-items: center;
+        border-radius: 10px;
+        background: #e7efff;
+        color: #4776d0;
+    }
+    .admin-shell .admin-app-header h5 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+    .admin-shell .admin-app-card .card-body,
+    .admin-shell .admin-panel .card-body {
+        padding: 18px 20px;
+    }
+    .admin-shell .admin-model-row {
+        min-height: 48px;
+        padding: 8px 0;
+        border-bottom: 1px solid #eef2f7;
+    }
+    .admin-shell .admin-model-row:last-child {
+        border-bottom: 0;
+    }
+    .admin-shell .admin-model-row a {
+        color: #2f4058 !important;
+        font-weight: 600;
+    }
+    .admin-shell .admin-model-row a:hover {
+        color: #4776d0 !important;
+    }
+    .admin-shell .admin-model-meta {
+        color: #8793a5;
+        font-size: .78rem;
+    }
+    .admin-shell .admin-add-button {
+        display: grid;
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        place-items: center;
+        border-radius: 8px;
+        background: #edf8f3;
+        color: #26966a;
+    }
+    .admin-shell .admin-add-button:hover {
+        background: #d9f1e6;
+        color: #19784f;
+    }
+</style>
+<div class="container-fluid py-2 admin-shell">
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <i class="fas fa-chart-pie feature-icon d-inline-block me-3"></i>
+                        <h2 class="d-inline-block mb-0">Vue Globale</h2>
+                    </div>
+                    <a href="{% url 'biens:liste_biens' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-home"></i> Retour au site
+                    </a>
+                </div>
+
+                {% if messages %}
+                <div class="mb-3">
+                    {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% else %}info{% endif %} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% block admin_content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

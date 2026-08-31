@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if title %}{{ title }} | {% endif %}Administration Immovia{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="card p-4 shadow-lg">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <i class="fas fa-cog feature-icon d-inline-block me-3"></i>
+                        <h2 class="d-inline-block mb-0">Administration Immovia</h2>
+                    </div>
+                    <a href="{% url 'biens:liste_biens' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-home"></i> Retour au site
+                    </a>
+                </div>
+
+                {% if messages %}
+                <div class="mb-3">
+                    {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% else %}info{% endif %} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% block admin_content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

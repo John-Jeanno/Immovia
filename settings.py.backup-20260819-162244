@@ -1,0 +1,263 @@
+from pathlib import Path
+import os
+from dotenv import load_dotenv  # Nouveau: pour les variables d'environnement
+
+# Charger les variables d'environnement
+load_dotenv()
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# ======================
+#  CONFIGURATION DE BASE
+# ======================
+
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-default-key-for-dev-only')
+
+DEBUG = False
+
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') if os.getenv('ALLOWED_HOSTS') else ['localhost', '127.0.0.1', 'testserver', '5nmg.l.time4vps.cloud', 'web', 'immo-web-1', 'immo-web']
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://5nmg.l.time4vps.cloud',
+    'https://5nmg.l.time4vps.cloud:8446',
+    'https://localhost',
+    'https://127.0.0.1',
+]
+
+# ======================
+#  APPLICATIONS
+# ======================
+
+INSTALLED_APPS = [
+    'django_filters',
+    'import_export',
+    'phonenumber_field',
+    # 'django_celery_beat',
+
+    # Application principale avant django.contrib.admin pour surcharger les templates admin
+    'immovia',
+
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django.contrib.humanize',
+
+    # Applications métier
+    'biens.apps.BiensConfig',
+    'clients.apps.ClientsConfig',
+    'rendezvous.apps.RendezvousConfig',
+    'transactions.apps.TransactionsConfig',
+    'location.apps.LocationConfig',
+    'comptabilite.apps.ComptabiliteConfig',
+    'chantiers.apps.ChantiersConfig',
+    'rest_framework',
+    # 'leaflet',  # Temporairement désactivé pour éviter les erreurs GDAL
+    'crispy_forms',
+    'crispy_bootstrap5',
+]
+
+# ======================
+#  MIDDLEWARE
+# ======================
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Nouveau: pour les fichiers statiques
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',  # Nouveau: internationalisation
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+# ======================
+#  URLS ET TEMPLATES
+# ======================
+
+ROOT_URLCONF = 'urls'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR / 'templates'],  # Nouveau: dossier templates global
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+WSGI_APPLICATION = 'immovia.wsgi.application'
+
+# ======================
+#  BASE DE DONNÉES
+# ======================
+
+DATABASES = {
+    'default': {
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.sqlite3'),
+        'NAME': os.getenv('DB_NAME', BASE_DIR / 'db.sqlite3'),
+        'USER': os.getenv('DB_USER', ''),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', ''),
+        'PORT': os.getenv('DB_PORT', ''),
+    }
+}
+
+# ======================
+#  VALIDATION MOT DE PASSE
+# ======================
+
+AUTH_PASSWORD_VALIDATORS = [
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', 'OPTIONS': {'min_length': 10}},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+]
+
+# ======================
+#  INTERNATIONALISATION
+# ======================
+
+LANGUAGE_CODE = 'fr-fr'
+TIME_ZONE = 'Africa/Dakar'
+USE_I18N = True
+USE_L10N = True
+USE_TZ = True
+
+# ======================
+#  FICHIERS STATIQUES ET MÉDIAS
+# ======================
+
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# ======================
+#  CONFIGURATIONS PERSONNALISÉES
+# ======================
+
+# Numéros de téléphone
+PHONENUMBER_DEFAULT_REGION = "SN"
+PHONENUMBER_DB_FORMAT = "INTERNATIONAL"
+
+# Configuration Email
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'contact@immovia.sn')
+
+# Configuration Celery
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
+CELERY_TIMEZONE = TIME_ZONE
+
+# Configuration API externes
+FACEBOOK_ACCESS_TOKEN = os.getenv('FACEBOOK_ACCESS_TOKEN', '')
+FACEBOOK_PAGE_ID = os.getenv('FACEBOOK_PAGE_ID', '')
+INSTAGRAM_BUSINESS_ID = os.getenv('INSTAGRAM_BUSINESS_ID', '')
+
+# Portails immobiliers
+LEBONCOIN_API_KEY = os.getenv('LEBONCOIN_API_KEY', '')
+SELOGER_API_KEY = os.getenv('SELOGER_API_KEY', '')
+
+# Configuration de sécurité (en production)
+if not DEBUG:
+    SECURE_HSTS_SECONDS = 3600
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_SSL_REDIRECT = False  # Laissez nginx gérer les redirects HTTP->HTTPS
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    CSRF_COOKIE_HTTPONLY = False  # Permettre l'accès JavaScript au cookie CSRF
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+else:
+    # En développement, désactiver les cookies sécurisés pour HTTP
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+    CSRF_COOKIE_HTTPONLY = False
+# Configuration Jazzmin (interface admin)
+JAZZMIN_SETTINGS = {
+    "site_title": "Immovia Admin",
+    "site_header": "Immovia",
+    "site_brand": "Immovia",
+    "welcome_sign": "Bienvenue dans l'administration Immovia",
+    "search_model": ["auth.User", "clients.Client"],
+    "topmenu_links": [
+        {"name": "Accueil", "url": "admin:index", "permissions": ["auth.view_user"]},
+    ],
+}
+
+# Configuration personnalisée
+IMMOVIA_SETTINGS = {
+    'COMMISSION_AGENT_DEFAUT': 0.03,  # 3%
+    'FRAIS_AGENCE_DEFAUT': 0.08,  # 8%
+    'TVA_DEFAUT': 0.18,  # 18%
+}
+
+# Configuration d'authentification
+LOGIN_URL = '/immo/accounts/login/'
+LOGIN_REDIRECT_URL = '/immo/'
+LOGOUT_REDIRECT_URL = '/immo/accounts/login/'
+
+# Configuration Leaflet
+LEAFLET_CONFIG = {
+    'DEFAULT_CENTER': (14.6937, -17.4441),  # Dakar, Senegal
+    'DEFAULT_ZOOM': 10,
+    'MIN_ZOOM': 3,
+    'MAX_ZOOM': 18,
+    'TILES': 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    'ATTRIBUTION': '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+}
+
+# Configuration Content Security Policy - Autoriser les ressources externes pour les cartes et formulaires
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "'unsafe-eval'", "cdnjs.cloudflare.com", "*.openstreetmap.org", "code.jquery.com", "cdn.jsdelivr.net")
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "cdnjs.cloudflare.com", "fonts.googleapis.com")
+CSP_IMG_SRC = ("'self'", "data:", "https:", "http:", "*.tile.openstreetmap.org", "*.a.ssl.fastly.net")
+CSP_FONT_SRC = ("'self'", "cdnjs.cloudflare.com", "fonts.googleapis.com", "fonts.gstatic.com")
+CSP_CONNECT_SRC = ("'self'", "*.openstreetmap.org", "*.tile.openstreetmap.org", "cdnjs.cloudflare.com")
+CSP_FORM_ACTION = ("'self'",)
+CSP_FRAME_ANCESTORS = ("'self'",)
+
+# Configuration Crispy Forms
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
+# Limite de taille des uploads
+DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100 MB
+
+# Configuration des logs
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+        },
+    },
+}

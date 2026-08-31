@@ -1,0 +1,148 @@
+{% extends 'admin/base.html' %}
+
+{% block admin_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="change-list-title mb-0">
+                    <i class="fas fa-list-ul"></i> {{ title }}
+                </h3>
+                <small class="text-muted">{{ cl.result_count }} résultat{{ cl.result_count|pluralize }}</small>
+            </div>
+            {% if has_add_permission %}
+            <a href="{{ add_url }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-plus"></i> Ajouter {{ opts.verbose_name }}
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-lg">
+            <div class="card-header bg-light">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        {% if cl.search_form %}
+                        <form method="get" class="d-flex">
+                            <div class="input-group">
+                                {{ cl.search_form.search }}
+                                <button class="btn btn-outline-primary" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 text-end">
+                        {% if cl.has_filters %}
+                        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filters">
+                            <i class="fas fa-filter"></i> Filtres
+                        </button>
+                        {% endif %}
+                        <div class="btn-group ms-2">
+                            <button type="button" class="btn btn-outline-info dropdown-toggle" data-bs-toggle="dropdown">
+                                <i class="fas fa-cog"></i> Actions
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-download"></i> Exporter</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-upload"></i> Importer</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-trash"></i> Supprimer sélection</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                {% if cl.has_filters %}
+                <div class="collapse mt-3" id="filters">
+                    <div class="card card-body bg-light">
+                        {{ cl.filter_specs }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="card-body p-0">
+                {% if cl.formset %}
+                <form method="post" id="changelist-form">
+                    {% csrf_token %}
+                    {{ cl.formset.management_form }}
+                {% endif %}
+
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                {% if cl.formset %}
+                                <th class="text-center">
+                                    <input type="checkbox" id="select-all">
+                                </th>
+                                {% endif %}
+                                {% for header in result_headers %}
+                                <th{% if header.sortable %} class="sortable"{% endif %}>
+                                    {% if header.sortable %}
+                                    <a href="{{ header.url }}" class="text-white text-decoration-none">
+                                        {{ header.text }}
+                                        {% if header.sorted %}
+                                        <i class="fas fa-sort-{% if header.ascending %}up{% else %}down{% endif %} ms-1"></i>
+                                        {% endif %}
+                                    </a>
+                                    {% else %}
+                                    {{ header.text }}
+                                    {% endif %}
+                                </th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in results %}
+                            <tr class="align-middle">
+                                {% if cl.formset %}
+                                <td class="text-center">
+                                    {{ result.form.checkbox }}
+                                </td>
+                                {% endif %}
+                                {% for item in result %}
+                                <td>{{ item }}</td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if cl.formset %}
+                </form>
+                {% endif %}
+            </div>
+
+            {% if pagination_required %}
+            <div class="card-footer bg-light">
+                <nav aria-label="Pagination">
+                    <ul class="pagination justify-content-center mb-0">
+                        {% for page in page_range %}
+                        <li class="page-item{% if page.current %} active{% endif %}">
+                            <a class="page-link" href="{{ page.url }}">
+                                {% if page.first %}1{% elif page.last %}{{ page.number }}{% else %}{{ page.number }}{% endif %}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('select-all')?.addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('input[name="selected"]');
+    checkboxes.forEach(cb => cb.checked = this.checked);
+});
+</script>
+{% endblock %}

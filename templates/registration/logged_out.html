@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    .logout-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .logout-container::before {
+        content: '';
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        top: -50px;
+        left: -50px;
+    }
+
+    .logout-container::after {
+        content: '';
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+        bottom: -30px;
+        right: -30px;
+    }
+
+    .logout-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        position: relative;
+        z-index: 1;
+        padding: 50px;
+        text-align: center;
+        max-width: 500px;
+        animation: slideUp 0.6s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .logout-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 30px;
+        font-size: 40px;
+        color: white;
+        animation: bounce 0.6s ease-out;
+    }
+
+    @keyframes bounce {
+        0%, 100% {
+            transform: scale(0.8);
+            opacity: 0;
+        }
+        50% {
+            transform: scale(1.1);
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .logout-card h2 {
+        color: #212529;
+        font-weight: 700;
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+    }
+
+    .logout-subtitle {
+        color: #999;
+        font-size: 0.95rem;
+        margin-bottom: 30px;
+    }
+
+    .logout-message {
+        background: #f0f8ff;
+        border-left: 4px solid #667eea;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 30px;
+        color: #495057;
+        font-size: 0.95rem;
+    }
+
+    .logout-message i {
+        color: #667eea;
+        margin-right: 10px;
+    }
+
+    .logout-buttons {
+        display: flex;
+        gap: 12px;
+        flex-direction: column;
+    }
+
+    .btn-logout-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-logout-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-logout-secondary {
+        background: #f0f0f0;
+        border: none;
+        color: #495057;
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-logout-secondary:hover {
+        background: #667eea;
+        color: white;
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
+
+    .logout-footer {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+        font-size: 0.85rem;
+        color: #999;
+    }
+</style>
+
+<div class="logout-container">
+    <div class="logout-card">
+        <div class="logout-icon">
+            <i class="fas fa-sign-out-alt"></i>
+        </div>
+
+        <h2>Déconnexion réussie</h2>
+        <p class="logout-subtitle">À bientôt dans Immovia</p>
+
+        <div class="logout-message">
+            <i class="fas fa-check-circle"></i>
+            <span>Vous avez été déconnecté de votre compte avec succès.</span>
+        </div>
+
+        <div class="logout-buttons">
+            <a href="/immo/accounts/login/" class="btn-logout-primary">
+                <i class="fas fa-sign-in-alt"></i> Se reconnecter
+            </a>
+
+            <a href="/immo/" class="btn-logout-secondary">
+                <i class="fas fa-home"></i> Retour au tableau de bord
+            </a>
+        </div>
+
+        <div class="logout-footer">
+            <p class="mb-0">💡 Conseil : Fermez votre navigateur pour plus de sécurité sur les ordinateurs partagés</p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

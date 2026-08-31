@@ -1,0 +1,83 @@
+{% extends "admin/base_site.html" %}
+{% load admin_urls static %}
+
+{% block title %}Confirmer la suppression | Django administration{% endblock %}
+
+{% block extrahead %}
+<style>
+    .delete-warning {
+        background-color: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .delete-list {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .delete-list ul {
+        margin: 0;
+        padding-left: 20px;
+    }
+    .delete-list li {
+        margin: 5px 0;
+    }
+    .object-count {
+        font-weight: bold;
+        color: #dc3545;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <h1>Confirmer la suppression</h1>
+    
+    <div class="delete-warning">
+        <h2 class="text-danger">⚠️ Attention !</h2>
+        <p>Vous êtes sur le point de supprimer les éléments suivants. Cette action <strong>ne peut pas être annulée</strong>.</p>
+    </div>
+
+    {% if queryset %}
+    <div class="delete-list">
+        <p>
+            Nombre d'éléments à supprimer : <span class="object-count">{{ queryset.count }}</span>
+        </p>
+        
+        {% if queryset.count <= 100 %}
+        <details>
+            <summary>Voir la liste des éléments à supprimer</summary>
+            <ul style="margin-top: 10px;">
+                {% for obj in queryset %}
+                <li>{{ obj }}</li>
+                {% endfor %}
+            </ul>
+        </details>
+        {% else %}
+        <p>
+            <em>Trop d'éléments à afficher ({{ queryset.count }} éléments)</em>
+        </p>
+        {% endif %}
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="submit-row">
+            <a href="{{ request.META.HTTP_REFERER }}" class="button">
+                <i class="icon-no"></i> Annuler
+            </a>
+            <button type="submit" name="confirm_delete" value="yes" class="button danger">
+                <i class="icon-yes"></i> Oui, supprimer
+            </button>
+        </div>
+    </form>
+    {% else %}
+    <p>Aucun élément sélectionné.</p>
+    <a href="{{ request.META.HTTP_REFERER }}" class="button">Retour</a>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,276 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static %}
+
+{% block title %}{{ title }} | Administration Immovia{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    .admin-card-title {
+        color: var(--text-primary, #1e293b) !important;
+    }
+    .admin-text-muted {
+        color: var(--text-secondary, #64748b) !important;
+    }
+    .admin-card {
+        background-color: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .admin-card-header {
+        background-color: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 1rem;
+    }
+    .admin-card-body {
+        background-color: #fff;
+        padding: 1rem;
+    }
+    .admin-btn-primary {
+        background: var(--primary-color, #2563eb);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .admin-btn-primary:hover {
+        opacity: 0.9;
+    }
+    #bien-map {
+        width: 100%;
+        height: 280px;
+        border-radius: 12px;
+        border: 1px solid #dfeaf6;
+        margin-top: 1rem;
+    }
+    .map-status {
+        font-size: 0.8rem;
+        color: #475569;
+        margin-top: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <div class="admin-card-icon">
+                    {% if add %}
+                    <i class="fas fa-plus-circle"></i>
+                    {% else %}
+                    <i class="fas fa-edit"></i>
+                    {% endif %}
+                </div>
+                <div class="d-flex justify-content-between align-items-center w-100">
+                    <div>
+                        <h5 class="admin-card-title mb-0">
+                            {% if add %}
+                            Ajouter {{ opts.verbose_name }}
+                            {% else %}
+                            Modifier {{ opts.verbose_name }}
+                            {% endif %}
+                        </h5>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" form="{{ opts.model_name }}_form" class="admin-btn-primary">
+                            <i class="fas fa-save"></i>Enregistrer
+                        </button>
+                        {% if not add %}
+                        <button type="submit" form="{{ opts.model_name }}_form" name="_continue" class="admin-btn-secondary">
+                            <i class="fas fa-save"></i>Enregistrer et continuer
+                        </button>
+                        {% endif %}
+                        <a href="{% url opts|admin_urlname:'changelist' %}" class="admin-btn-secondary">
+                            <i class="fas fa-arrow-left"></i>Retour à la liste
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="admin-card-body">
+                {% if opts.model_name == 'bienimmobilier' %}
+                <div class="mb-3">
+                    <div id="bien-map"></div>
+                    <div id="map-status" class="map-status">Saisissez l’adresse exacte et la ville pour faire apparaître le marqueur sur la carte.</div>
+                </div>
+                {% endif %}
+                <form action="{{ form_url }}" method="post" id="{{ opts.model_name }}_form" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}
+                    <div class="admin-alert admin-alert-error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            {% for error in form.non_field_errors %}
+                            <p class="mb-0">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% for fieldset in fieldsets %}
+                    <div class="admin-fieldset">
+                        <div class="admin-fieldset-header">
+                            <h6 class="admin-fieldset-title">
+                                {% if fieldset.name %}{{ fieldset.name }}{% endif %}
+                            </h6>
+                        </div>
+                        <div class="admin-fieldset-body">
+                            {% if fieldset.description %}
+                            <p class="admin-text-muted small mb-3">{{ fieldset.description }}</p>
+                            {% endif %}
+
+                            <div class="row">
+                                {% for line in fieldset %}
+                                {% for field in line %}
+                                <div class="col-md-{% if line|length == 1 %}12{% elif line|length == 2 %}6{% else %}4{% endif %} mb-3">
+                                    <div class="form-group">
+                                        <label for="{{ field.id_for_label }}" class="form-label fw-bold">
+                                            {{ field.label }}
+                                            {% if field.field.required %}
+                                            <span class="text-danger">*</span>
+                                            {% endif %}
+                                        </label>
+                                        {{ field }}
+                                        {% if field.errors %}
+                                        <div class="admin-alert admin-alert-error mt-2">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            <div>
+                                                {% for error in field.errors %}
+                                                <p class="mb-0">{{ error }}</p>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                        {% if field.help_text %}
+                                        <small class="admin-text-muted">{{ field.help_text }}</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    {% for inline_admin_formset in inline_admin_formsets %}
+                    <div class="admin-inline">
+                        <div class="admin-fieldset-header">
+                            <h6 class="admin-fieldset-title">
+                                {{ inline_admin_formset.opts.verbose_name_plural|capfirst }}
+                            </h6>
+                        </div>
+                        <div class="admin-fieldset-body">
+                            {{ inline_admin_formset.formset.management_form }}
+                            {% for inline_admin_form in inline_admin_formset %}
+                            <div class="admin-card mb-3">
+                                <div class="admin-card-body">
+                                    {% if inline_admin_form.form.non_form_errors %}
+                                    <div class="admin-alert admin-alert-error mb-3">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        <div>
+                                            {% for error in inline_admin_form.form.non_form_errors %}
+                                            <p class="mb-0">{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if opts.model_name == 'bienimmobilier' %}
+<script>
+window.addEventListener('DOMContentLoaded', function () {
+    const addressInput = document.getElementById('id_adresse');
+    const cityInput = document.getElementById('id_ville');
+    const postalInput = document.getElementById('id_code_postal');
+    const latitudeInput = document.getElementById('id_latitude');
+    const longitudeInput = document.getElementById('id_longitude');
+    const statusBox = document.getElementById('map-status');
+
+    if (!addressInput || !cityInput || !postalInput || !latitudeInput || !longitudeInput || !document.getElementById('bien-map')) {
+        return;
+    }
+
+    const map = L.map('bien-map').setView([14.6937, -17.4441], 10);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a> &copy; OpenStreetMap contributors',
+        maxZoom: 19
+    }).addTo(map);
+
+    let marker = L.marker([14.6937, -17.4441], {draggable: true}).addTo(map);
+
+    function updateMarker(lat, lon, text) {
+        marker.setLatLng([lat, lon]);
+        marker.bindPopup(text).openPopup();
+        map.setView([lat, lon], 15);
+        latitudeInput.value = Number(lat).toFixed(6);
+        longitudeInput.value = Number(lon).toFixed(6);
+    }
+
+    // Mettre à jour les coordonnées quand le marqueur est déplacé
+    marker.on('dragend', function() {
+        const pos = marker.getLatLng();
+        latitudeInput.value = Number(pos.lat).toFixed(6);
+        longitudeInput.value = Number(pos.lng).toFixed(6);
+        statusBox.textContent = 'Position mise à jour. Vous pouvez continuer à déplacer le marqueur.';
+    });
+
+    function geocodeCurrentAddress() {
+        const address = addressInput.value.trim();
+        const city = cityInput.value.trim();
+        const postal = postalInput.value.trim();
+        const query = [address, postal, city, 'Sénégal'].filter(Boolean).join(', ');
+
+        if (!address || !city) {
+            statusBox.textContent = 'Saisissez au moins l'adresse et la ville pour localiser le bien. Vous pouvez aussi déplacer le marqueur directement sur la carte.';
+            return;
+        }
+
+        statusBox.textContent = 'Recherche de la localisation…';
+        fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&q=' + encodeURIComponent(query) + '&limit=1', {
+            headers: { 'Accept-Language': 'fr' }
+        })
+        .then(response => response.json())
+        .then(results => {
+            if (!results || !results.length) {
+                statusBox.textContent = 'Adresse introuvable, veuillez vérifier l’adresse et la ville.';
+                return;
+            }
+            const result = results[0];
+            const lat = parseFloat(result.lat);
+            const lon = parseFloat(result.lon);
+            const label = [address, postal, city].filter(Boolean).join(' - ') || result.display_name;
+            updateMarker(lat, lon, '<strong>' + label + '</strong>');
+            statusBox.textContent = 'Localisation trouvée. Vous pouvez déplacer le marqueur pour affiner la position.';
+        })
+        .catch(() => {
+            statusBox.textContent = 'Le géocodage n’a pas pu être effectué. Vérifiez l’adresse ou saisissez les coordonnées manuellement.';
+        });
+    }
+
+    [addressInput, cityInput, postalInput].forEach((field) => {
+        field.addEventListener('input', geocodeCurrentAddress);
+        field.addEventListener('change', geocodeCurrentAddress);
+    });
+
+    if (latitudeInput.value && longitudeInput.value) {
+        updateMarker(latitudeInput.value, longitudeInput.value, 'Bien déjà localisé');
+    }
+});
+</script>
+{% endif %}
+{% endblock %}
